@@ -6,14 +6,14 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
 import io.github.haykam821.codebreaker.Main;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -22,6 +22,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 public class CodeControlBlockEntity extends BlockEntity {
+	private static final BlockState DEFAULT_BLOCK = Blocks.AIR.getDefaultState();
+
 	protected static final String BLOCK_KEY = "block";
 
 	private BlockState block = Blocks.AIR.getDefaultState();
@@ -62,8 +64,8 @@ public class CodeControlBlockEntity extends BlockEntity {
 	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
 		super.readNbt(nbt, registries);
 
-		RegistryEntryLookup<Block> registryWrapper = registries.getOrThrow(RegistryKeys.BLOCK);
-		this.block = NbtHelper.toBlockState(registryWrapper, nbt.getCompound(BLOCK_KEY));
+		RegistryOps<NbtElement> ops = registries.getOps(NbtOps.INSTANCE);
+		this.block = nbt.get(BLOCK_KEY, BlockState.CODEC, ops).orElse(DEFAULT_BLOCK);
 	}
 
 	@Override
